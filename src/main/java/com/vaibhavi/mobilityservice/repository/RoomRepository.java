@@ -8,4 +8,5 @@ public interface RoomRepository extends CrudRepository<Room, Integer> {
     //@Query("from Item i where i.id=:id AND i.name=:name")
     //public Optional<Item> findByItemNameAndId(@Param("id") int id, @Param("name") String name);
     public Room save(Room room);
+
 }
