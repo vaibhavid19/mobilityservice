@@ -3,6 +3,7 @@ package com.vaibhavi.mobilityservice.service;
 import com.vaibhavi.mobilityservice.entiry.Room;
 import com.vaibhavi.mobilityservice.exception.MoveIsForbidden;
 import com.vaibhavi.mobilityservice.exception.MoveIsUnauthorized;
+import com.vaibhavi.mobilityservice.exception.RoomNotFound;
 import com.vaibhavi.mobilityservice.repository.RoomRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.expression.spel.ast.NullLiteral;
@@ -42,18 +43,19 @@ public class MobilityService {
         if(!roomOptional.isPresent()) {
             throw new Exception("No such room exists");
         }
-        if (isMoveValid(Integer.valueOf(result), nextRoom)) {
+        String result3 = null;
+        if (this.isMoveValid(Integer.valueOf(result), nextRoom)) {
             //http://localhost:8080/character/update/location/9/10
             //http://localhost:8080/character/update/location/5/7
             String uri3 = "http://localhost:8080/character/update/location/" + characterId +"/" + nextRoom;
             System.out.println("UPDATING AT" + uri3);
             RestTemplate restTemplate3 = new RestTemplate();
-            String result3 = restTemplate3.getForObject(uri3, String.class);
-
+            result3 = restTemplate3.getForObject(uri3, String.class);
+            return "Moved";
+        } else {
             if (result3=="" || result3==null) {
                 throw new MoveIsForbidden();
             }
-            return "Moved";
         }
         return "Unable to move!";
     }
@@ -61,7 +63,7 @@ public class MobilityService {
     public boolean isMoveValid(int currentLocation, int nextRoom) throws Exception{
         Optional<Room> currentRoomOptional = this.roomRepository.findById(currentLocation);
         if(!currentRoomOptional.isPresent()) {
-            throw new Exception("No such room exists!");
+            throw new RoomNotFound();
         }
         Room theRoom = currentRoomOptional.get();
         System.out.println("ROOM IS : " + currentLocation);
