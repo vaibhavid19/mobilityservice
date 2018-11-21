@@ -19,14 +19,19 @@ public class MobilityController {
         room.setExits(mobilityService.genRandomNumBetween(8,18));
         return this.mobilityService.saveRoom(room);
     }
+
+    @GetMapping("/room/get/{roomId}")
+    public Room getRoomDetails(@PathVariable int roomId) throws Exception{
+        return this.mobilityService.getRoom(roomId);
+    }
 //
 //    Scenario: Legal move
 //    Given /move/1/to/4
 //    When character 1 is in room 3 which has exits to 4, 5 and 7.
 //    Then character 1's location is updated to 4 and a 200 is returned
     @PostMapping("/move/{characterId}/to/{nextRoom}")
-    public void moveCharacter(@PathVariable int characterId, @PathVariable int nextRoom) {
-        mobilityService.moveCharacter(characterId, nextRoom);
+    public String moveCharacter(@PathVariable int characterId, @PathVariable int nextRoom) throws Exception{
+        return mobilityService.moveCharacter(characterId, nextRoom);
     }
 
 //    Scenario: Illegal move

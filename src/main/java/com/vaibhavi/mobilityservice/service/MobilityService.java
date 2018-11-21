@@ -6,8 +6,9 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestTemplate;
 
+import java.math.BigInteger;
 import java.util.Optional;
-
+import java.util.stream.IntStream;
 @Service
 public class MobilityService {
     @Autowired
@@ -22,7 +23,7 @@ public class MobilityService {
         return roomExits;
     }
 
-    public void moveCharacter(int characterId, int nextRoom) throws Exception {
+    public String moveCharacter(int characterId, int nextRoom) throws Exception {
         final String uri = "http://localhost:8080/character/get/" + characterId;
         RestTemplate restTemplate = new RestTemplate();
         String result = restTemplate.getForObject(uri, String.class);
@@ -30,16 +31,37 @@ public class MobilityService {
         if(!roomOptional.isPresent()) {
             throw new Exception("No such room exists");
         }
-        if (isMoveValid()) {
-            //Cha
+        if (isMoveValid(Integer.valueOf(result))) {
+            return "Moved";
         }
+        return "Unable to move";
     }
 
-    public boolean isMoveValid() {
-        return true;
+    public boolean isMoveValid(int currentLocation) throws Exception{
+        Optional<Room> currentRoomOptional = this.roomRepository.findById(currentLocation);
+        if(!currentRoomOptional.isPresent()) {
+            throw new Exception("No such room exists!");
+        }
+        System.out.println("ROOM IS : " + currentLocation);
+        System.out.println("EXITS ARE : " + currentRoomOptional.get().getExits());
+
+        System.out.println("CHECK RESOLVES : ");
+
+        if (IntStream.of(currentRoomOptional.get().getExits()).anyMatch(i -> i == currentLocation)) {
+            return true;
+        }
+        return false;
     }
 
     public Room saveRoom(Room room) {
         return this.roomRepository.save(room);
+    }
+
+    public Room getRoom(int roomId) throws Exception {
+        Optional<Room> roomOptional = this.roomRepository.findById(roomId);
+        if(!roomOptional.isPresent()) {
+            throw new Exception("No such room exists!");
+        }
+        return roomOptional.get();
     }
 }
